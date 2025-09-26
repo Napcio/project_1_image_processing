@@ -44,23 +44,27 @@ public:
 
     ~TgaContainer();
 
-
+    TgaContainer& multiply(const TgaContainer& other);
+    TgaContainer& screen(const TgaContainer& other);
+    TgaContainer& subtract(const TgaContainer& other);
+    TgaContainer& add(const TgaContainer& other);
+    TgaContainer& overlay(const TgaContainer& other);
 
     // Helper functions
     /**
      * Calls the passed function for each pixel
      * @param func Function that is given a reference to the current pixel to operate on
      */
-    void forEachPixel(const std::function<void(Pixel&)>& func);
+    TgaContainer& forEachPixel(const std::function<void(Pixel&)>& func);
 
     /**
      * Calls the passed function for each pixel, for operations involving another const TgaContainer
      * @param func Function that is given references to the target object's current pixel to operate on and the other TgaContainer's respective pixel
      * @param other Another TgaContainer, who's pixels are given to the passed function as a const reference
      */
-    void forEachPixelPair(std::function<void(Pixel&, const Pixel&)> func, const TgaContainer& other);
+    TgaContainer& forEachPixelPair(const std::function<void(Pixel&, const Pixel&)>& func, const TgaContainer& other);
 
-    void load(const std::string &filename);
+    TgaContainer& load(const std::string& filename);
 
     // TODO: remove this lmao its just for testing
     TgaHeader& getHeader()

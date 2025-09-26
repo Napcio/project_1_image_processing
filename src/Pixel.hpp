@@ -29,7 +29,7 @@ struct Pixel
      */
     void forEachChannelPair(const std::function<void(uint8_t&, uint8_t)>& func, const Pixel& other);
     static double normalize(uint8_t x);
-    static uint8_t unnormalize(uint8_t x);
+    static uint8_t unnormalize(double x);
     static uint8_t clamp(int x);
 };
 #pragma pack(pop)

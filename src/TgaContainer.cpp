@@ -84,20 +84,66 @@ TgaContainer::~TgaContainer()
     deleteImageData();
 }
 
+TgaContainer& TgaContainer::multiply(const TgaContainer& other)
+{
+    forEachPixelPair([](Pixel& p1, const Pixel& p2)
+    {
+        p1.multiply(p2);
+    }, other);
+    return *this;
+}
 
-void TgaContainer::forEachPixel(const std::function<void(Pixel&)>& func)
+TgaContainer& TgaContainer::screen(const TgaContainer& other)
+{
+    forEachPixelPair([](Pixel& p1, const Pixel& p2)
+    {
+        p1.screen(p2);
+    }, other);
+    return *this;
+}
+
+TgaContainer& TgaContainer::subtract(const TgaContainer& other)
+{
+    forEachPixelPair([](Pixel& p1, const Pixel& p2)
+    {
+        p1.subtract(p2);
+    }, other);
+    return *this;
+}
+
+TgaContainer& TgaContainer::add(const TgaContainer& other)
+{
+    forEachPixelPair([](Pixel& p1, const Pixel& p2)
+    {
+        p1.add(p2);
+    }, other);
+    return *this;
+}
+
+TgaContainer& TgaContainer::overlay(const TgaContainer& other)
+{
+    forEachPixelPair([](Pixel& p1, const Pixel& p2)
+    {
+        p1.overlay(p2);
+    }, other);
+    return *this;
+}
+
+
+TgaContainer& TgaContainer::forEachPixel(const std::function<void(Pixel&)>& func)
 {
     for (size_t row = 0; row < header_.imageHeight; row++)
     {
         for (size_t col = 0; col < header_.imageWidth; col++)
         {
-            int x = 0;
             func(imageData_[row][col]);
         }
     }
+    return *this;
 }
 
-void TgaContainer::forEachPixelPair(std::function<void(Pixel&, const Pixel&)> func, const TgaContainer& other)
+TgaContainer& TgaContainer::forEachPixelPair(const std::function<void(Pixel&, const Pixel&)>& func,
+                                             const TgaContainer& other)
 {
     if (header_.imageHeight != other.header_.imageHeight ||
         header_.imageWidth != other.header_.imageWidth)
@@ -112,9 +158,10 @@ void TgaContainer::forEachPixelPair(std::function<void(Pixel&, const Pixel&)> fu
             func(imageData_[row][col], other.imageData_[row][col]);
         }
     }
+    return *this;
 }
 
-void TgaContainer::load(const std::string& filename)
+TgaContainer& TgaContainer::load(const std::string& filename)
 {
     std::ofstream out(filename, std::ios::binary);
 
@@ -125,6 +172,7 @@ void TgaContainer::load(const std::string& filename)
     });
 
     out.close();
+    return *this;
 }
 
 void TgaContainer::deleteImageData()

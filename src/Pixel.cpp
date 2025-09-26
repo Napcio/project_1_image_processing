@@ -4,10 +4,12 @@
 
 #include "Pixel.hpp"
 
+#include <iostream>
+
 
 void Pixel::multiply(const Pixel& other)
 {
-    forEachChannelPair([](uint8_t& p1, uint8_t p2)
+    forEachChannelPair([](uint8_t& p1, const uint8_t p2)
     {
         p1 = unnormalize(normalize(p1) * normalize(p2));
     }, other);
@@ -25,7 +27,7 @@ void Pixel::subtract(const Pixel& other)
 {
     forEachChannelPair([](uint8_t& p1, uint8_t p2)
     {
-        p1 = clamp(p1 + p2);
+        p1 = clamp(p1 - p2);
     }, other);
 }
 
@@ -33,7 +35,7 @@ void Pixel::add(const Pixel& other)
 {
     forEachChannelPair([](uint8_t& p1, uint8_t p2)
     {
-        p1 = clamp(p1 - p2);
+        p1 = clamp(p1 + p2);
     }, other);
 }
 
@@ -60,10 +62,10 @@ void Pixel::forEachChannelPair(const std::function<void(uint8_t&, uint8_t)>& fun
 
 double Pixel::normalize(const uint8_t x)
 {
-    return x / 255;
+    return x / 255.0;
 }
 
-uint8_t Pixel::unnormalize(const uint8_t x)
+uint8_t Pixel::unnormalize(const double x)
 {
     return (x * 255) + .5;
 }

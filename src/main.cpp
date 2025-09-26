@@ -9,9 +9,18 @@
 
 int main()
 {
-    // std::cout << std::filesystem::current_path() << std::endl;
-    TgaContainer test("../input/car.tga");
-    test.load("../output/test.tga");
+    // Part 1
+    TgaContainer part1Image("../input/layer1.tga");
+    TgaContainer part1Reference("../input/car.tga");
+    part1Image.multiply(part1Reference).load("../output/part1.tga");
 
-    // std::cout << test.getHeader().imageWidth << std::endl;
+    // Part 2
+    TgaContainer part2Image("../input/layer2.tga");
+    TgaContainer part2Reference("../input/car.tga");
+    part2Image.subtract(part2Reference).load("../output/part2.tga");
+
+    TgaContainer part3Image("../input/layer2.tga");
+    TgaContainer part3Reference("../input/car.tga");
+    part3Image.subtract(part3Reference);
+    part3Image.load("../output/part3.tga");
 }
