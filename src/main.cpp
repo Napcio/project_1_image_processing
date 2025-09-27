@@ -10,8 +10,8 @@
 
 int main()
 {
-    const std::string INPUT_PATH = "/input/";
-    const std::string OUTPUT_PATH = "/output/";
+    const std::string INPUT_PATH = "./input/";
+    const std::string OUTPUT_PATH = "./output/";
 
     TgaContainer car(INPUT_PATH + "car.tga");
     TgaContainer circles(INPUT_PATH + "circles.tga");
