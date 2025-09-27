@@ -129,6 +129,19 @@ TgaContainer& TgaContainer::overlay(const TgaContainer& other)
     return *this;
 }
 
+TgaContainer& TgaContainer::rotate180()
+{
+    const TgaContainer old(*this);
+    for (size_t row = 0; row < header_.imageHeight; row++)
+    {
+        for (size_t col = 0; col < header_.imageWidth; col++)
+        {
+            imageData_[row][col] = old.imageData_[header_.imageHeight - 1 - row][header_.imageWidth - 1 - col];
+        }
+    }
+    return *this;
+}
+
 
 TgaContainer& TgaContainer::forEachPixel(const std::function<void(Pixel&)>& func)
 {

@@ -50,6 +50,8 @@ public:
     TgaContainer& add(const TgaContainer& other);
     TgaContainer& overlay(const TgaContainer& other);
 
+    TgaContainer& rotate180();
+
     // Helper functions
     /**
      * Calls the passed function for each pixel
@@ -65,12 +67,6 @@ public:
     TgaContainer& forEachPixelPair(const std::function<void(Pixel&, const Pixel&)>& func, const TgaContainer& other);
 
     TgaContainer& load(const std::string& filename);
-
-    // TODO: remove this lmao its just for testing
-    TgaHeader& getHeader()
-    {
-        return header_;
-    }
 
 
 private:

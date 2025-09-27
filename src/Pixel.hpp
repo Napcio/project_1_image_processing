@@ -15,11 +15,11 @@ struct Pixel
     uint8_t green;
     uint8_t red;
 
-    void multiply(const Pixel& other);
-    void screen(const Pixel& other);
-    void subtract(const Pixel& other);
-    void add(const Pixel& other);
-    void overlay(const Pixel& other);
+    Pixel& multiply(const Pixel& other);
+    Pixel& screen(const Pixel& other);
+    Pixel& subtract(const Pixel& other);
+    Pixel& add(const Pixel& other);
+    Pixel& overlay(const Pixel& other);
 
     // Helper functions
     /**
@@ -27,10 +27,16 @@ struct Pixel
      * @param func Function that is given references to the target object's current channel to operate on and the other pixel's respective channel
      * @param other Another Pixel, who's channels are given to the passed function by value
      */
-    void forEachChannelPair(const std::function<void(uint8_t&, uint8_t)>& func, const Pixel& other);
+    Pixel& forEachChannelPair(const std::function<void(uint8_t&, uint8_t)>& func, const Pixel& other);
     static double normalize(uint8_t x);
     static uint8_t unnormalize(double x);
     static uint8_t clamp(int x);
+
+    static uint8_t multiplyChannel(uint8_t c1, uint8_t factor);
+    static uint8_t screenChannel(uint8_t c1, uint8_t factor);
+    static uint8_t subtractChannel(uint8_t c, uint8_t offset);
+    static uint8_t addChannel(uint8_t c, uint8_t offset);
+    static uint8_t overlayChannel(uint8_t c, uint8_t factor);
 };
 #pragma pack(pop)
 
