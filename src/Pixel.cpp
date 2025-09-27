@@ -4,6 +4,8 @@
 
 #include "Pixel.hpp"
 
+#include <stdexcept>
+
 
 Pixel& Pixel::multiply(const Pixel& other)
 {
