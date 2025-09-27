@@ -177,7 +177,7 @@ TgaContainer& TgaContainer::forEachPixelPair(const std::function<void(Pixel&, co
     return *this;
 }
 
-TgaContainer& TgaContainer::load(const std::string& filename)
+TgaContainer& TgaContainer::save(const std::string& filename)
 {
     std::ofstream out(filename, std::ios::binary);
 

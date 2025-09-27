@@ -66,7 +66,7 @@ public:
      */
     TgaContainer& forEachPixelPair(const std::function<void(Pixel&, const Pixel&)>& func, const TgaContainer& other);
 
-    TgaContainer& load(const std::string& filename);
+    TgaContainer& save(const std::string& filename);
 
 
 private:
