@@ -2,7 +2,6 @@
 // Created by bigna on 9/21/2025.
 //
 
-#include <iostream>
 #include <filesystem>
 #include "TgaContainer.hpp"
 #include "Pixel.hpp"
@@ -10,6 +9,12 @@
 
 int main()
 {
+    // This conditional is because I can't get CMake to set the cwd to project root when running on my machine
+    if (std::filesystem::current_path().filename() == "cmake-build-debug")
+    {
+        std::filesystem::current_path(std::filesystem::current_path().parent_path());
+    }
+
     const std::string INPUT_PATH = "./input/";
     const std::string OUTPUT_PATH = "./output/";
 
