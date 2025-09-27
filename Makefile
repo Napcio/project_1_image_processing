@@ -1,4 +1,4 @@
-all : imageProcessor
+all : project1.out
 
-imageProcessor :
-	g++ -Wall -Wextra -Werror -std=c++20 -o out src/main.cpp src/TgaContainer.cpp src/Pixel.cpp
+project1.out :
+	g++ -Wall -Wextra -Werror -std=c++20 -o project1.out src/main.cpp src/TgaContainer.cpp src/Pixel.cpp
