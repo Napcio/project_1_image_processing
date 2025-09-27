@@ -35,7 +35,7 @@ TgaContainer::TgaContainer(const TgaContainer& other)
     header_ = other.header_;
 
     allocateImageData();
-    forEachPixelPair([&other](Pixel& pixel, const Pixel& otherPixel)
+    forEachPixelPair([](Pixel& pixel, const Pixel& otherPixel)
     {
         pixel = otherPixel;
     }, other);
@@ -59,10 +59,12 @@ TgaContainer& TgaContainer::operator=(const TgaContainer& other)
     header_ = other.header_;
 
     allocateImageData();
-    forEachPixelPair([&other](Pixel& pixel, const Pixel& otherPixel)
+    forEachPixelPair([](Pixel& pixel, const Pixel& otherPixel)
     {
         pixel = otherPixel;
     }, other);
+
+    return *this;
 }
 
 TgaContainer& TgaContainer::operator=(TgaContainer&& other) noexcept
@@ -76,6 +78,7 @@ TgaContainer& TgaContainer::operator=(TgaContainer&& other) noexcept
     imageData_ = other.imageData_;
     other.imageData_ = nullptr;
 
+    return *this;
 }
 
 

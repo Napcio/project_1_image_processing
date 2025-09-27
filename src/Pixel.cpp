@@ -112,6 +112,7 @@ uint8_t Pixel::overlayChannel(uint8_t c1, uint8_t c2)
     {
         return unnormalize(1 - (2 * (1 - normalize(c1)) * (1 - np2)));
     }
+    throw std::runtime_error("Pixel::overlayChannel() error: Control should never pass if statements");
 }
 
 
