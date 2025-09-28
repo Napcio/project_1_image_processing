@@ -201,7 +201,7 @@ TgaContainer& TgaContainer::addGreen(int x)
 {
     forEachPixel([&x](Pixel& pixel)
     {
-        pixel.green = Pixel::clamp(pixel.green + x);
+        pixel.green = Pixel::clamp(static_cast<int>(pixel.green) + x);
     });
     return *this;
 }
