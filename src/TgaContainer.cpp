@@ -153,6 +153,7 @@ TgaContainer& TgaContainer::combine(const TgaContainer& green, const TgaContaine
     {
         pixel.blue = other.blue;
     }, blue);
+    return *this;
 }
 
 TgaContainer& TgaContainer::onlyRed()
