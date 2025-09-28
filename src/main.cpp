@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
     // if (currentArg >= args.size())
     //     handleError(ErrorMessages::MISSING_ARG);
 
-    if (std::filesystem::path(args[currentArg]).extension() != ".tga" || !std::ifstream(args[currentArg]))
+    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
     {
         std::cout << INV_FILENAME << std::endl;
         return -1;
