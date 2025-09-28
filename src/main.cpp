@@ -3,6 +3,7 @@
 //
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 #include "TgaContainer.hpp"
@@ -98,25 +99,36 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    std::string outputPath;
-    std::string inputPath;
-    try
+    const std::string INV_FILENAME = "Invalid file name.";
+    const std::string FILE_DNE = "File does not exist.";
+    // Input validation for first 2 args
+    if (std::filesystem::path(args[currentArg]).extension() != ".tga" || !std::ifstream(args[currentArg]))
     {
-        outputPath = Method::consumeFilenameOutput(args, currentArg);
-        inputPath = Method::consumeFilenameInput(args, currentArg);
+        std::cout << INV_FILENAME << std::endl;
+        return -1;
     }
-    catch (std::runtime_error& e)
+    if (!std::ifstream(args[currentArg]))
     {
-        if (e.what() == ErrorMessages::ARG_EXCEPTION_MESSAGE)
-            return -1;
-        throw;
+        std::cout << FILE_DNE << std::endl;
+        return -1;
     }
+    const std::string& outputPath = args[currentArg++];
+    // if (currentArg >= args.size())
+    //     handleError(ErrorMessages::MISSING_ARG);
+
+    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
+    {
+        std::cout << INV_FILENAME << std::endl;
+        return -1;
+    }
+    const std::string& inputPath = args[currentArg++];
+
     TgaContainer target(inputPath);
 
     while (currentArg < args.size())
     {
         bool isMethodSuccessful = false;
-        for (Method m : methods)
+        for (const Method& m : methods)
         {
             if (args[currentArg] == m.name)
             {
