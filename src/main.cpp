@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
         Method("combine", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
             TgaContainer green =TgaContainer(Method::consumeFilenameInput(args, currentArg));
-            TgaContainer blue = TgaContainer(Method::consumeFilenameInput(args, currentArg);
+            TgaContainer blue = TgaContainer(Method::consumeFilenameInput(args, currentArg));
             target.combine(green,
                 blue
                 );
