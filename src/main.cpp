@@ -102,6 +102,15 @@ int main(int argc, char* argv[])
     const std::string INV_FILENAME = "Invalid file name.";
     const std::string FILE_DNE = "File does not exist.";
     // Input validation for first 2 args
+    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
+    {
+        std::cout << INV_FILENAME << std::endl;
+        return -1;
+    }
+    const std::string& outputPath = args[currentArg++];
+    // if (currentArg >= args.size())
+    //     handleError(ErrorMessages::MISSING_ARG);
+
     if (std::filesystem::path(args[currentArg]).extension() != ".tga" || !std::ifstream(args[currentArg]))
     {
         std::cout << INV_FILENAME << std::endl;
@@ -110,15 +119,6 @@ int main(int argc, char* argv[])
     if (!std::ifstream(args[currentArg]))
     {
         std::cout << FILE_DNE << std::endl;
-        return -1;
-    }
-    const std::string& outputPath = args[currentArg++];
-    // if (currentArg >= args.size())
-    //     handleError(ErrorMessages::MISSING_ARG);
-
-    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
-    {
-        std::cout << INV_FILENAME << std::endl;
         return -1;
     }
     const std::string& inputPath = args[currentArg++];
