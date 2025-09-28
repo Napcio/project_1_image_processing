@@ -199,7 +199,7 @@ TgaContainer& TgaContainer::addRed(int x)
 
 TgaContainer& TgaContainer::addGreen(int x)
 {
-    forEachPixel([x](Pixel& pixel)
+    forEachPixel([&x](Pixel& pixel)
     {
         pixel.green = Pixel::clamp(pixel.green + x);
     });

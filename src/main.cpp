@@ -47,9 +47,10 @@ int main(int argc, char* argv[])
         }),
         Method("combine", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.combine(
-                TgaContainer(Method::consumeFilenameInput(args, currentArg)),
-                TgaContainer(Method::consumeFilenameInput(args, currentArg))
+            TgaContainer green =TgaContainer(Method::consumeFilenameInput(args, currentArg));
+            TgaContainer blue = TgaContainer(Method::consumeFilenameInput(args, currentArg);
+            target.combine(green,
+                blue
                 );
         }),
         Method("flip", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
