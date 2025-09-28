@@ -13,7 +13,7 @@
 namespace ErrorMessages
 {
     const std::string INV_FILENAME = "Invalid file name.";
-    const std::string FILE_DNE = "Invalid argument, invalid file name.";
+    const std::string FILE_DNE = "Invalid argument, file does not exist.";
     const std::string INV_INT = "Invalid argument, expected number.";
 
     const std::string MISSING_ARG = "Missing argument.";
