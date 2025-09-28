@@ -30,11 +30,13 @@ bool Method::run(TgaContainer& target, const std::vector<std::string>& args, siz
 
 std::string Method::consumeFilenameInput(const std::vector<std::string>& args, size_t& currentArg)
 {
-    if (currentArg >= args.size() || std::filesystem::path(args[currentArg]).extension() != ".tga")
-        handleError(ErrorMessages::INV_FILENAME);
+    if (currentArg >= args.size())
+        handleError(ErrorMessages::MISSING_ARG);
 
     if (!std::ifstream(args[currentArg]))
         handleError(ErrorMessages::FILE_DNE);
+    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
+        handleError(ErrorMessages::INV_FILENAME);
 
     return args[currentArg++];
 }
