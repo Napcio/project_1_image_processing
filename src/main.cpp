@@ -3,93 +3,133 @@
 //
 
 #include <filesystem>
+#include <iostream>
+
 #include "TgaContainer.hpp"
 #include "Pixel.hpp"
+#include "Method.hpp"
 
-void milestone1()
+void milestone1(); // Defined in Milestone1.cpp
+
+void printHelp()
 {
-
-    const std::string INPUT_PATH = "./input/";
-    const std::string OUTPUT_PATH = "./output/";
-
-    TgaContainer car(INPUT_PATH + "car.tga");
-    TgaContainer circles(INPUT_PATH + "circles.tga");
-    TgaContainer layer_blue(INPUT_PATH + "layer_blue.tga");
-    TgaContainer layer_green(INPUT_PATH + "layer_green.tga");
-    TgaContainer layer_red(INPUT_PATH + "layer_red.tga");
-    TgaContainer layer1(INPUT_PATH + "layer1.tga");
-    TgaContainer layer2(INPUT_PATH + "layer2.tga");
-    TgaContainer pattern1(INPUT_PATH + "pattern1.tga");
-    TgaContainer pattern2(INPUT_PATH + "pattern2.tga");
-    TgaContainer text(INPUT_PATH + "text.tga");
-    TgaContainer text2(INPUT_PATH + "text2.tga");
-
-    // Part 1
-    TgaContainer(layer1).multiply(pattern1).save(OUTPUT_PATH + "part1.tga");
-
-    // Part 2
-    TgaContainer(car).subtract(layer2).save(OUTPUT_PATH + "part2.tga");
-
-    // Part 3
-    TgaContainer(layer1).multiply(pattern2).screen(text).save(OUTPUT_PATH + "part3.tga");
-
-    // Part 4
-    TgaContainer(layer2).multiply(circles).subtract(pattern2).save(OUTPUT_PATH + "part4.tga");
-
-    // Part 5
-    TgaContainer(layer1).overlay(pattern1).save(OUTPUT_PATH + "part5.tga");
-
-    // Part 6
-    TgaContainer(car).forEachPixel([](Pixel& pixel)
-    {
-        pixel.green = Pixel::clamp(pixel.green + 200);
-    }).save(OUTPUT_PATH + "part6.tga");
-
-    // Part 7
-    TgaContainer(car).forEachPixel([](Pixel& pixel)
-    {
-        pixel.red = Pixel::clamp(pixel.red * 4);
-        pixel.blue = 0;
-    }).save(OUTPUT_PATH + "part7.tga");
-
-    // Part 8
-    TgaContainer(car).forEachPixel([](Pixel& pixel)
-    {
-        pixel.blue = pixel.red;
-        pixel.green = pixel.red;
-    }).save(OUTPUT_PATH + "part8_r.tga");
-    TgaContainer(car).forEachPixel([](Pixel& pixel)
-    {
-        pixel.red = pixel.green;
-        pixel.blue = pixel.green;
-    }).save(OUTPUT_PATH + "part8_g.tga");
-    TgaContainer(car).forEachPixel([](Pixel& pixel)
-    {
-        pixel.red = pixel.blue;
-        pixel.green = pixel.blue;
-    }).save(OUTPUT_PATH + "part8_b.tga");
-
-    // Part 9
-    TgaContainer(layer_red).forEachPixelPair([](Pixel& pixel, const Pixel& other)
-    {
-        pixel.green = other.green;
-    }, layer_green).forEachPixelPair([](Pixel& pixel, const Pixel& other)
-    {
-        pixel.blue = other.blue;
-    }, layer_blue).save(OUTPUT_PATH + "part9.tga");
-
-    // Part 10
-    TgaContainer(text2).rotate180().save(OUTPUT_PATH + "part10.tga");
+    std::cout
+    << "Project 1: Image Processing, Fall 2025\n\n"
+    << "Usage:\n"
+    << "\t./project1.out [output] [firstImage] [method] [...]" << std::endl;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    // This conditional is because I can't get CMake to set the cwd to project root when running on my machine
-    if (std::filesystem::current_path().filename() == "cmake-build-debug")
+    milestone1();
+    const std::vector<Method> methods = {
+        Method("multiply", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.multiply(TgaContainer(Method::consumeFilename(args, currentArg)));
+        }),
+        Method("subtract", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.subtract(TgaContainer(Method::consumeFilename(args, currentArg)));
+        }),
+        Method("overlay", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.overlay(TgaContainer(Method::consumeFilename(args, currentArg)));
+        }),
+        Method("screen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.screen(TgaContainer(Method::consumeFilename(args, currentArg)));
+        }),
+        Method("combine", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.combine(
+                TgaContainer(Method::consumeFilename(args, currentArg)),
+                TgaContainer(Method::consumeFilename(args, currentArg))
+                );
+        }),
+        Method("flip", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            target.flip();
+        }),
+        Method("onlyred", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            target.onlyRed();
+        }),
+        Method("onlygreen", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            target.onlyGreen();
+        }),
+        Method("onlyblue", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            target.onlyBlue();
+        }),
+        Method("addred", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.addRed(Method::consumeInt(args, currentArg));
+        }),
+        Method("addgreen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.addGreen(Method::consumeInt(args, currentArg));
+        }),
+        Method("addblue", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.addBlue(Method::consumeInt(args, currentArg));
+        }),
+        Method("scalered", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.scaleRed(Method::consumeInt(args, currentArg));
+        }),
+        Method("scalegreen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.scaleGreen(Method::consumeInt(args, currentArg));
+        }),
+        Method("scaleblue", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        {
+            target.scaleBlue(Method::consumeInt(args, currentArg));
+        })
+    };
+
+
+    const std::vector<std::string> args(argv, argv + argc);
+    size_t currentArg = 1;
+
+    if (argc == 1 || args[1] == "--help")
     {
-        std::filesystem::current_path(std::filesystem::current_path().parent_path());
+        printHelp();
+        return 0;
     }
 
-    milestone1();
+    std::string outputPath;
+    std::string inputPath;
+    try
+    {
+        outputPath = Method::consumeString(args, currentArg);
+        inputPath = Method::consumeFilename(args, currentArg);
+    }
+    catch (std::runtime_error& e)
+    {
+        if (e.what() == ErrorMessages::ARG_EXCEPTION_MESSAGE)
+            return -1;
+        throw;
+    }
+    TgaContainer target(inputPath);
+
+    while (currentArg < args.size())
+    {
+        for (Method m : methods)
+        {
+            if (args[currentArg] == m.name)
+            {
+                currentArg++;
+                bool isMethodSuccessful = m.run(target, args, currentArg);
+                if (!isMethodSuccessful)
+                {
+                    // Method class should handle user-facing error messages
+                    return -1;
+                }
+            }
+        }
+    }
+    target.save(outputPath);
+    return 0;
 }
 

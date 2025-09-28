@@ -7,7 +7,7 @@
 #include "TgaContainer.hpp"
 
 
-TgaContainer::TgaContainer(const std::string &filename)
+TgaContainer::TgaContainer(const std::string& filename)
 {
     // Set up filestream
     std::ifstream in(filename, std::ios::binary);
@@ -16,17 +16,16 @@ TgaContainer::TgaContainer(const std::string &filename)
         throw std::ios_base::failure("Failed to open " + filename + " to load into TgaContainer.");
     }
 
-    // Initialize header
-    in.read(reinterpret_cast<char*>(&header_), sizeof(header_));
+    load(in);
+}
 
-    // Allocate imageData_ array
-    allocateImageData();
-    // Initialize imageData_ array
-    forEachPixel([&in](Pixel& pixel)
+TgaContainer::TgaContainer(std::ifstream& in)
+{
+    if (!in)
     {
-        in.read(reinterpret_cast<char*>(&pixel), sizeof(pixel));
-    });
-
+        throw std::ios_base::failure("std::ifstream passed into TgaContainer constructor is invalid.");
+    }
+    load(in);
 }
 
 // Copy constructor
@@ -132,7 +131,7 @@ TgaContainer& TgaContainer::overlay(const TgaContainer& other)
     return *this;
 }
 
-TgaContainer& TgaContainer::rotate180()
+TgaContainer& TgaContainer::flip()
 {
     const TgaContainer old(*this);
     for (size_t row = 0; row < header_.imageHeight; row++)
@@ -142,6 +141,101 @@ TgaContainer& TgaContainer::rotate180()
             imageData_[row][col] = old.imageData_[header_.imageHeight - 1 - row][header_.imageWidth - 1 - col];
         }
     }
+    return *this;
+}
+
+TgaContainer& TgaContainer::combine(const TgaContainer& green, const TgaContainer& blue)
+{
+    forEachPixelPair([](Pixel& pixel, const Pixel& other)
+    {
+        pixel.green = other.green;
+    }, green).forEachPixelPair([](Pixel& pixel, const Pixel& other)
+    {
+        pixel.blue = other.blue;
+    }, blue);
+}
+
+TgaContainer& TgaContainer::onlyRed()
+{
+    forEachPixel([](Pixel& pixel)
+    {
+        pixel.blue = pixel.red;
+        pixel.green = pixel.red;
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::onlyGreen()
+{
+    forEachPixel([](Pixel& pixel)
+    {
+        pixel.red = pixel.green;
+        pixel.blue = pixel.green;
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::onlyBlue()
+{
+    forEachPixel([](Pixel& pixel)
+    {
+        pixel.red = pixel.blue;
+        pixel.green = pixel.blue;
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::addRed(int x)
+{
+    forEachPixel([&x](Pixel& pixel)
+    {
+        pixel.red = Pixel::clamp(pixel.red + x);
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::addGreen(int x)
+{
+    forEachPixel([&x](Pixel& pixel)
+    {
+        pixel.green = Pixel::clamp(pixel.green + x);
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::addBlue(int x)
+{
+    forEachPixel([&x](Pixel& pixel)
+    {
+        pixel.blue = Pixel::clamp(pixel.blue + x);
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::scaleRed(int x)
+{
+    forEachPixel([&x](Pixel& pixel)
+    {
+        pixel.red = Pixel::clamp(pixel.red * x);
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::scaleGreen(int x)
+{
+    forEachPixel([&x](Pixel& pixel)
+    {
+        pixel.green = Pixel::clamp(pixel.green * x);
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::scaleBlue(int x)
+{
+    forEachPixel([&x](Pixel& pixel)
+    {
+        pixel.blue = Pixel::clamp(pixel.blue * x);
+    });
     return *this;
 }
 
@@ -189,6 +283,19 @@ TgaContainer& TgaContainer::save(const std::string& filename)
 
     out.close();
     return *this;
+}
+
+// Should only be called in the constructor, allocates imageData_
+void TgaContainer::load(std::ifstream& in)
+{
+    in.read(reinterpret_cast<char*>(&header_), sizeof(header_));
+
+    allocateImageData();
+    // Initialize imageData_ array
+    forEachPixel([&in](Pixel& pixel)
+    {
+        in.read(reinterpret_cast<char*>(&pixel), sizeof(pixel));
+    });
 }
 
 void TgaContainer::deleteImageData()

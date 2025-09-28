@@ -34,7 +34,8 @@ struct Pixel;
 class TgaContainer
 {
 public:
-    explicit TgaContainer(const std::string &filename);
+    explicit TgaContainer(const std::string& filename);
+    explicit TgaContainer(std::ifstream& in);
 
     TgaContainer(const TgaContainer& other);
     TgaContainer(TgaContainer&& other) noexcept;
@@ -50,7 +51,19 @@ public:
     TgaContainer& add(const TgaContainer& other);
     TgaContainer& overlay(const TgaContainer& other);
 
-    TgaContainer& rotate180();
+    TgaContainer& flip();
+
+    TgaContainer& combine(const TgaContainer& green, const TgaContainer& blue);
+    TgaContainer& onlyRed();
+    TgaContainer& onlyGreen();
+    TgaContainer& onlyBlue();
+    TgaContainer& addRed(int x);
+    TgaContainer& addGreen(int x);
+    TgaContainer& addBlue(int x);
+    TgaContainer& scaleRed(int x);
+    TgaContainer& scaleGreen(int x);
+    TgaContainer& scaleBlue(int x);
+
 
     // Helper functions
     /**
@@ -70,6 +83,7 @@ public:
 
 
 private:
+    void load(std::ifstream& in);
     void deleteImageData();
     void allocateImageData();
 
