@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     std::string inputPath;
     try
     {
-        outputPath = Method::consumeString(args, currentArg);
+        outputPath = Method::consumeFilename(args, currentArg);
         inputPath = Method::consumeFilename(args, currentArg);
     }
     catch (std::runtime_error& e)
