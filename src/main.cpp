@@ -21,29 +21,29 @@ void printHelp()
 
 int main(int argc, char* argv[])
 {
-    milestone1();
+    // milestone1();
     const std::vector<Method> methods = {
         Method("multiply", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.multiply(TgaContainer(Method::consumeFilename(args, currentArg)));
+            target.multiply(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
         }),
         Method("subtract", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.subtract(TgaContainer(Method::consumeFilename(args, currentArg)));
+            target.subtract(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
         }),
         Method("overlay", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.overlay(TgaContainer(Method::consumeFilename(args, currentArg)));
+            target.overlay(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
         }),
         Method("screen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.screen(TgaContainer(Method::consumeFilename(args, currentArg)));
+            target.screen(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
         }),
         Method("combine", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
         {
             target.combine(
-                TgaContainer(Method::consumeFilename(args, currentArg)),
-                TgaContainer(Method::consumeFilename(args, currentArg))
+                TgaContainer(Method::consumeFilenameInput(args, currentArg)),
+                TgaContainer(Method::consumeFilenameInput(args, currentArg))
                 );
         }),
         Method("flip", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
     std::string inputPath;
     try
     {
-        outputPath = Method::consumeFilename(args, currentArg);
-        inputPath = Method::consumeFilename(args, currentArg);
+        outputPath = Method::consumeFilenameOutput(args, currentArg);
+        inputPath = Method::consumeFilenameInput(args, currentArg);
     }
     catch (std::runtime_error& e)
     {
@@ -115,18 +115,24 @@ int main(int argc, char* argv[])
 
     while (currentArg < args.size())
     {
+        bool isMethodSuccessful = false;
         for (Method m : methods)
         {
             if (args[currentArg] == m.name)
             {
                 currentArg++;
-                bool isMethodSuccessful = m.run(target, args, currentArg);
+                isMethodSuccessful = m.run(target, args, currentArg);
                 if (!isMethodSuccessful)
                 {
                     // Method class should handle user-facing error messages
                     return -1;
                 }
             }
+        }
+        if (!isMethodSuccessful) // If the program got here and this evaluates to true, no matching method was found
+        {
+            std::cout << ErrorMessages::INV_METHOD << std::endl;
+            return -1;
         }
     }
     target.save(outputPath);

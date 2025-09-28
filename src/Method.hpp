@@ -13,6 +13,7 @@
 namespace ErrorMessages
 {
     const std::string INV_FILENAME = "Invalid file name.";
+    const std::string FILE_DNE = "Invalid argument, invalid file name.";
     const std::string INV_INT = "Invalid argument, expected number.";
 
     const std::string MISSING_ARG = "Missing argument.";
@@ -39,7 +40,9 @@ struct Method
     // Returns true if the operation was successful, false otherwise
     bool run(TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg) const;
 
-    static std::string consumeFilename(const std::vector<std::string>& args, size_t& currentArg);
+    static std::string consumeFilenameInput(const std::vector<std::string>& args, size_t& currentArg);
+    static std::string consumeFilenameOutput(const std::vector<std::string>& args, size_t& currentArg);
+
     static std::string consumeString(const std::vector<std::string>& args, size_t& currentArg);
     static int consumeInt(const std::vector<std::string>& args, size_t& currentArg);
 
