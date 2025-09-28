@@ -33,10 +33,11 @@ std::string Method::consumeFilenameInput(const std::vector<std::string>& args, s
     if (currentArg >= args.size())
         handleError(ErrorMessages::MISSING_ARG);
 
-    if (!std::ifstream(args[currentArg]))
-        handleError(ErrorMessages::FILE_DNE);
     if (std::filesystem::path(args[currentArg]).extension() != ".tga")
         handleError(ErrorMessages::INV_FILENAME);
+    if (!std::ifstream(args[currentArg]))
+        handleError(ErrorMessages::FILE_DNE);
+
 
     return args[currentArg++];
 }
