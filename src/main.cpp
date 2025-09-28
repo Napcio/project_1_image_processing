@@ -22,6 +22,11 @@ void printHelp()
 
 int main(int argc, char* argv[])
 {
+    if (std::filesystem::current_path().filename() == "cmake-build-debug")
+    {
+        std::filesystem::current_path(std::filesystem::current_path().parent_path());
+    }
+
     // milestone1();
     const std::vector<Method> methods = {
         Method("multiply", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
@@ -108,8 +113,6 @@ int main(int argc, char* argv[])
         return -1;
     }
     const std::string& outputPath = args[currentArg++];
-    // if (currentArg >= args.size())
-    //     handleError(ErrorMessages::MISSING_ARG);
 
     if (std::filesystem::path(args[currentArg]).extension() != ".tga")
     {
@@ -139,6 +142,7 @@ int main(int argc, char* argv[])
                     // Method class should handle user-facing error messages
                     return -1;
                 }
+                break;
             }
         }
         if (!isMethodSuccessful) // If the program got here and this evaluates to true, no matching method was found

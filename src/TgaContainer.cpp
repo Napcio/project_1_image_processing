@@ -6,6 +6,8 @@
 #include "Pixel.hpp"
 #include "TgaContainer.hpp"
 
+#include <iostream>
+
 
 TgaContainer::TgaContainer(const std::string& filename)
 {
@@ -290,8 +292,8 @@ TgaContainer& TgaContainer::save(const std::string& filename)
 void TgaContainer::load(std::ifstream& in)
 {
     in.read(reinterpret_cast<char*>(&header_), sizeof(header_));
-
     allocateImageData();
+
     // Initialize imageData_ array
     forEachPixel([&in](Pixel& pixel)
     {
