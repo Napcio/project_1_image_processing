@@ -40,8 +40,8 @@ struct Method
     // Returns true if the operation was successful, false otherwise
     bool run(std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg) const;
 
-    static std::string consumeFilenameInput(const std::vector<std::string>& args, size_t& currentArg);
-    static std::string consumeFilenameOutput(const std::vector<std::string>& args, size_t& currentArg);
+    static std::string consumeInputFilename(const std::vector<std::string>& args, size_t& currentArg);
+    static std::string consumeOutputFilename(const std::vector<std::string>& args, size_t& currentArg);
 
     static std::string consumeString(const std::vector<std::string>& args, size_t& currentArg);
     static int consumeInt(const std::vector<std::string>& args, size_t& currentArg);

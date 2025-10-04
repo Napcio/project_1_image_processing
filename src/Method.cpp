@@ -28,7 +28,7 @@ bool Method::run(std::vector<TgaContainer>& targets, const std::vector<std::stri
     return true;
 }
 
-std::string Method::consumeFilenameInput(const std::vector<std::string>& args, size_t& currentArg)
+std::string Method::consumeInputFilename(const std::vector<std::string>& args, size_t& currentArg)
 {
     if (currentArg >= args.size())
         throw InputValidationExceptions::MissingArgument();
@@ -42,7 +42,7 @@ std::string Method::consumeFilenameInput(const std::vector<std::string>& args, s
     return args[currentArg++];
 }
 
-std::string Method::consumeFilenameOutput(const std::vector<std::string>& args, size_t& currentArg)
+std::string Method::consumeOutputFilename(const std::vector<std::string>& args, size_t& currentArg)
 {
     if (currentArg >= args.size())
         throw InputValidationExceptions::MissingArgument();

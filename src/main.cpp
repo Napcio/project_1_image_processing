@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     const std::vector<Method> methods = {
         Method("multiply", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            const TgaContainer other(Method::consumeInputFilename(args, currentArg));
             for (TgaContainer& target : targets)
             {
                 target.multiply(other);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
         }),
         Method("subtract", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            const TgaContainer other(Method::consumeInputFilename(args, currentArg));
             for (TgaContainer& target : targets)
             {
                 target.subtract(other);
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
         }),
         Method("overlay", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            const TgaContainer other(Method::consumeInputFilename(args, currentArg));
             for (TgaContainer& target : targets)
             {
                 target.overlay(other);
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
         }),
         Method("screen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            const TgaContainer other(Method::consumeInputFilename(args, currentArg));
             for (TgaContainer& target : targets)
             {
                 target.screen(other);
@@ -64,8 +64,8 @@ int main(int argc, char* argv[])
         }),
         Method("combine", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const TgaContainer green = TgaContainer(Method::consumeFilenameInput(args, currentArg));
-            const TgaContainer blue = TgaContainer(Method::consumeFilenameInput(args, currentArg));
+            const TgaContainer green = TgaContainer(Method::consumeInputFilename(args, currentArg));
+            const TgaContainer blue = TgaContainer(Method::consumeInputFilename(args, currentArg));
             for (TgaContainer& target : targets)
             {
                 target.combine(green, blue);
@@ -162,26 +162,47 @@ int main(int argc, char* argv[])
     const std::string INV_FILENAME = "Invalid file name.";
     const std::string FILE_DNE = "File does not exist.";
     // Input validation for first 2 args
-    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
+    std::string outputPath;
+    try
+    {
+        outputPath = Method::consumeOutputFilename(args, currentArg);
+    }
+    catch (InputValidationExceptions::MissingArgument&) { throw; } // This should never happen
+    catch (InputValidationExceptions::InvalidFilename&)
     {
         std::cout << INV_FILENAME << std::endl;
         return -1;
     }
-    const std::string& outputPath = args[currentArg++];
 
-    if (std::filesystem::path(args[currentArg]).extension() != ".tga")
+    // Populate targets
+    std::vector<TgaContainer> targets;
+    bool filenameArgFound = true;
+    do
     {
-        std::cout << INV_FILENAME << std::endl;
-        return -1;
-    }
-    if (!std::ifstream(args[currentArg]))
-    {
-        std::cout << FILE_DNE << std::endl;
-        return -1;
-    }
-    const std::string& inputPath = args[currentArg++];
-
-    std::vector<TgaContainer> targets = {TgaContainer(inputPath)};
+        try
+        {
+            targets.emplace_back(Method::consumeInputFilename(args, currentArg));
+        }
+        catch (const InputValidationExceptions::MissingArgument&) {} // TODO: figure out what to do here lmao
+        catch (const InputValidationExceptions::InvalidFilename&)
+        {
+            if (targets.empty())
+            {
+                std::cout << INV_FILENAME << std::endl;
+                return -1;
+            } // otherwise allow the argument to fall through
+            filenameArgFound = false;
+        }
+        catch (const InputValidationExceptions::FileDNE&)
+        {
+            if (targets.empty())
+            {
+                std::cout << FILE_DNE << std::endl;
+                return -1;
+            } // otherwise allow the argument to fall through
+            filenameArgFound = false;
+        }
+    } while (filenameArgFound);
 
     while (currentArg < args.size())
     {
