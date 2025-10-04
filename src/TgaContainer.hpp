@@ -88,7 +88,7 @@ private:
     void allocateImageData();
 
     TgaHeader header_;
-    Pixel** imageData_; // 2D array of Pixel structs
+    Pixel** imageData_ = nullptr; // 2D array of Pixel structs
 };
 
 
