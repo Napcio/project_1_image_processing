@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
         })
     };
 
-
+    // Turn arguments to vector of strings
     const std::vector<std::string> args(argv, argv + argc);
     size_t currentArg = 1;
 
@@ -159,13 +159,16 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    // Input validation for first 2 args
     const std::string INV_FILENAME = "Invalid file name.";
     const std::string FILE_DNE = "File does not exist.";
-    // Input validation for first 2 args
-    std::string outputPath;
+    const std::string MISSING_INPUT = "No input file(s) specified.";
+    const std::string NO_PROVIDED_METHODS = "No methods specified, image has been saved without performing any operations.";
+
+    std::string outputPathTemp;
     try
     {
-        outputPath = Method::consumeOutputFilename(args, currentArg);
+        outputPathTemp = Method::consumeOutputFilename(args, currentArg);
     }
     catch (InputValidationExceptions::MissingArgument&) { throw; } // This should never happen
     catch (InputValidationExceptions::InvalidFilename&)
@@ -173,6 +176,7 @@ int main(int argc, char* argv[])
         std::cout << INV_FILENAME << std::endl;
         return -1;
     }
+    const std::string outputPath = std::move(outputPathTemp);
 
     // Populate targets
     std::vector<TgaContainer> targets;
@@ -183,7 +187,17 @@ int main(int argc, char* argv[])
         {
             targets.emplace_back(Method::consumeInputFilename(args, currentArg));
         }
-        catch (const InputValidationExceptions::MissingArgument&) {} // TODO: figure out what to do here lmao
+        catch (const InputValidationExceptions::MissingArgument&)
+        {
+            if (targets.empty())
+            {
+                std::cout << MISSING_INPUT << std::endl;
+                return -1;
+            }
+            std::cout << NO_PROVIDED_METHODS << std::endl;
+            targets[0].save(outputPath);
+            return 0;
+        }
         catch (const InputValidationExceptions::InvalidFilename&)
         {
             if (targets.empty())
@@ -204,6 +218,7 @@ int main(int argc, char* argv[])
         }
     } while (filenameArgFound);
 
+    // Parse methods
     while (currentArg < args.size())
     {
         bool isMethodSuccessful = false;
