@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "InputValidationExceptions.hpp"
 #include "TgaContainer.hpp"
 #include "Pixel.hpp"
 #include "Method.hpp"
@@ -20,6 +21,7 @@ void printHelp()
     << "\t./project1.out [output] [firstImage] [method] [...]" << std::endl;
 }
 
+
 int main(int argc, char* argv[])
 {
     if (std::filesystem::current_path().filename() == "cmake-build-debug")
@@ -27,69 +29,123 @@ int main(int argc, char* argv[])
         std::filesystem::current_path(std::filesystem::current_path().parent_path());
     }
 
-    // milestone1();
     const std::vector<Method> methods = {
-        Method("multiply", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("multiply", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.multiply(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
+            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            for (TgaContainer& target : targets)
+            {
+                target.multiply(other);
+            }
         }),
-        Method("subtract", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("subtract", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.subtract(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
+            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            for (TgaContainer& target : targets)
+            {
+                target.subtract(other);
+            }
         }),
-        Method("overlay", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("overlay", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.overlay(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
+            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            for (TgaContainer& target : targets)
+            {
+                target.overlay(other);
+            }
         }),
-        Method("screen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("screen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.screen(TgaContainer(Method::consumeFilenameInput(args, currentArg)));
+            const TgaContainer other(Method::consumeFilenameInput(args, currentArg));
+            for (TgaContainer& target : targets)
+            {
+                target.screen(other);
+            }
         }),
-        Method("combine", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("combine", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            TgaContainer green = TgaContainer(Method::consumeFilenameInput(args, currentArg));
-            TgaContainer blue = TgaContainer(Method::consumeFilenameInput(args, currentArg));
-            target.combine(green, blue);
+            const TgaContainer green = TgaContainer(Method::consumeFilenameInput(args, currentArg));
+            const TgaContainer blue = TgaContainer(Method::consumeFilenameInput(args, currentArg));
+            for (TgaContainer& target : targets)
+            {
+                target.combine(green, blue);
+            }
         }),
-        Method("flip", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        Method("flip", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            target.flip();
+            for (TgaContainer& target : targets)
+            {
+                target.flip();
+            }
         }),
-        Method("onlyred", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        Method("onlyred", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            target.onlyRed();
+            for (TgaContainer& target : targets)
+            {
+                target.onlyRed();
+            }
         }),
-        Method("onlygreen", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        Method("onlygreen", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            target.onlyGreen();
+            for (TgaContainer& target : targets)
+            {
+                target.onlyGreen();
+            }
         }),
-        Method("onlyblue", [](TgaContainer& target, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        Method("onlyblue", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            target.onlyBlue();
+            for (TgaContainer& target : targets)
+            {
+                target.onlyBlue();
+            }
         }),
-        Method("addred", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("addred", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.addRed(Method::consumeInt(args, currentArg));
+            const int offset = Method::consumeInt(args, currentArg);
+            for (TgaContainer& target : targets)
+            {
+                target.addRed(offset);
+            }
         }),
-        Method("addgreen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("addgreen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.addGreen(Method::consumeInt(args, currentArg));
+            const int offset = Method::consumeInt(args, currentArg);
+            for (TgaContainer& target : targets)
+            {
+                target.addGreen(offset);
+            }
         }),
-        Method("addblue", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("addblue", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.addBlue(Method::consumeInt(args, currentArg));
+            const int offset = Method::consumeInt(args, currentArg);
+            for (TgaContainer& target : targets)
+            {
+                target.addBlue(offset);
+            }
         }),
-        Method("scalered", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("scalered", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.scaleRed(Method::consumeInt(args, currentArg));
+            const int factor = Method::consumeInt(args, currentArg);
+            for (TgaContainer& target : targets)
+            {
+                target.scaleRed(factor);
+            }
         }),
-        Method("scalegreen", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("scalegreen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.scaleGreen(Method::consumeInt(args, currentArg));
+            const int factor = Method::consumeInt(args, currentArg);
+            for (TgaContainer& target : targets)
+            {
+                target.scaleGreen(factor);
+            }
         }),
-        Method("scaleblue", [](TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg)
+        Method("scaleblue", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            target.scaleBlue(Method::consumeInt(args, currentArg));
+            const int factor = Method::consumeInt(args, currentArg);
+            for (TgaContainer& target : targets)
+            {
+                target.scaleBlue(factor);
+            }
         })
     };
 
@@ -125,7 +181,7 @@ int main(int argc, char* argv[])
     }
     const std::string& inputPath = args[currentArg++];
 
-    TgaContainer target(inputPath);
+    std::vector<TgaContainer> targets = {TgaContainer(inputPath)};
 
     while (currentArg < args.size())
     {
@@ -135,7 +191,7 @@ int main(int argc, char* argv[])
             if (args[currentArg] == m.name)
             {
                 currentArg++;
-                isMethodSuccessful = m.run(target, args, currentArg);
+                isMethodSuccessful = m.run(targets, args, currentArg);
                 if (!isMethodSuccessful)
                 {
                     // Method class should handle user-facing error messages
@@ -146,11 +202,11 @@ int main(int argc, char* argv[])
         }
         if (!isMethodSuccessful) // If the program got here and this evaluates to true, no matching method was found
         {
-            std::cout << ErrorMessages::INV_METHOD << std::endl;
+            std::cout << InputValidationExceptions::ErrorMessages::INV_METHOD << std::endl;
             return -1;
         }
     }
-    target.save(outputPath);
+    targets[0].save(outputPath);
     return 0;
 }
 

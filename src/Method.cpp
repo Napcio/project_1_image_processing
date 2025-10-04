@@ -3,6 +3,7 @@
 //
 
 #include "Method.hpp"
+#include "InputValidationExceptions.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -10,20 +11,19 @@
 #include <sstream>
 #include <stdexcept>
 
-Method::Method(const std::string& n, const std::function<void(TgaContainer&, const std::vector<std::string>&, size_t&)>& o)
+Method::Method(const std::string& n, const std::function<void(std::vector<TgaContainer>&, const std::vector<std::string>&, size_t&)>& o)
     : name(n), operation(o) {}
 
-bool Method::run(TgaContainer& target, const std::vector<std::string>& args, size_t& currentArg) const
+bool Method::run(std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg) const
 {
     try
     {
-        operation(target, args, currentArg);
+        operation(targets, args, currentArg);
     }
-    catch (const std::runtime_error& e)
+    catch (const InputValidationExceptions::InvalidArgument& e)
     {
-        if (std::string(e.what()) == ErrorMessages::ARG_EXCEPTION_MESSAGE)
-            return false;
-        throw;
+        std::cout << e.what() << std::endl;
+        return false;
     }
     return true;
 }
@@ -31,12 +31,12 @@ bool Method::run(TgaContainer& target, const std::vector<std::string>& args, siz
 std::string Method::consumeFilenameInput(const std::vector<std::string>& args, size_t& currentArg)
 {
     if (currentArg >= args.size())
-        handleError(ErrorMessages::MISSING_ARG);
+        throw InputValidationExceptions::MissingArgument();
 
     if (std::filesystem::path(args[currentArg]).extension() != ".tga")
-        handleError(ErrorMessages::INV_FILENAME);
+        throw InputValidationExceptions::InvalidFilename();
     if (!std::ifstream(args[currentArg]))
-        handleError(ErrorMessages::FILE_DNE);
+        throw InputValidationExceptions::FileDNE();
 
 
     return args[currentArg++];
@@ -45,10 +45,10 @@ std::string Method::consumeFilenameInput(const std::vector<std::string>& args, s
 std::string Method::consumeFilenameOutput(const std::vector<std::string>& args, size_t& currentArg)
 {
     if (currentArg >= args.size())
-        handleError(ErrorMessages::MISSING_ARG);
+        throw InputValidationExceptions::MissingArgument();
 
     if (std::filesystem::path(args[currentArg]).extension() != ".tga")
-        handleError(ErrorMessages::INV_FILENAME);
+        throw InputValidationExceptions::InvalidFilename();
 
     return args[currentArg++];
 }
@@ -56,7 +56,7 @@ std::string Method::consumeFilenameOutput(const std::vector<std::string>& args, 
 std::string Method::consumeString(const std::vector<std::string>& args, size_t& currentArg)
 {
     if (currentArg >= args.size())
-        handleError(ErrorMessages::MISSING_ARG);
+        throw InputValidationExceptions::MissingArgument();
 
     return args[currentArg++];
 }
@@ -64,20 +64,14 @@ std::string Method::consumeString(const std::vector<std::string>& args, size_t& 
 int Method::consumeInt(const std::vector<std::string>& args, size_t& currentArg)
 {
     if (currentArg >= args.size())
-        handleError(ErrorMessages::MISSING_ARG);
+        throw InputValidationExceptions::MissingArgument();
 
     std::istringstream in(args[currentArg]);
     int x;
     in >> x;
     if (in.fail() || !in.eof())
-        handleError(ErrorMessages::INV_INT);
+        throw InputValidationExceptions::InvalidInteger();
 
     currentArg++;
     return x;
-}
-
-void Method::handleError(const std::string& errorMessage)
-{
-    std::cout << errorMessage << std::endl;
-    throw std::runtime_error(ErrorMessages::ARG_EXCEPTION_MESSAGE);
 }
