@@ -32,6 +32,12 @@ namespace InputValidationExceptions
         InvalidInteger() : InvalidArgument("Invalid argument, expected number.") {}
     };
 
+    class InvalidFloatingPoint : public InvalidArgument
+    {
+    public:
+        InvalidFloatingPoint() : InvalidArgument("Invalid argument, expected floating point number.") {}
+    };
+
     class MissingArgument : public InvalidArgument
     {
     public:

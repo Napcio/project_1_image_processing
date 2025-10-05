@@ -5,23 +5,12 @@
 #ifndef PROJECT_1_IMAGE_PROCESSING_METHOD_HPP
 #define PROJECT_1_IMAGE_PROCESSING_METHOD_HPP
 #include <functional>
+#include <sstream>
 #include <string>
 #include <vector>
 
 #include "TgaContainer.hpp"
-
-// namespace ErrorMessages
-// {
-//     const std::string INV_FILENAME = "Invalid argument, invalid file name.";
-//     const std::string FILE_DNE = "Invalid argument, file does not exist.";
-//     const std::string INV_INT = "Invalid argument, expected number.";
-//
-//     const std::string MISSING_ARG = "Missing argument.";
-//
-//     const std::string INV_METHOD = "Invalid method name.";
-//
-//     const std::string ARG_EXCEPTION_MESSAGE = "Argument error";
-// }
+#include "InputValidationExceptions.hpp"
 
 struct Method
 {
@@ -46,9 +35,30 @@ struct Method
     static std::string consumeString(const std::vector<std::string>& args, size_t& currentArg);
     static int consumeInt(const std::vector<std::string>& args, size_t& currentArg);
     template <class T>
-    T consumeNum(const std::vector<std::string>& args, size_t& currentArg);
+    static T consumeNum(const std::vector<std::string>& args, size_t& currentArg)
+    {
+        static_assert(std::is_arithmetic_v<T>, "consumeNum<T>() type must be arithmetic");
 
-private:
-    static void handleError(const std::string& errorMessage);
+        if (currentArg >= args.size())
+            throw InputValidationExceptions::MissingArgument();
+
+        std::istringstream in(args[currentArg]);
+        T x;
+        in >> x;
+        if (in.fail() || !in.eof())
+        {
+            if (std::is_integral_v<T>)
+            {
+                throw InputValidationExceptions::InvalidInteger();
+            }
+            if (std::is_floating_point_v<T>)
+            {
+                throw InputValidationExceptions::InvalidFloatingPoint();
+            }
+        }
+
+        currentArg++;
+        return x;
+    }
 };
 #endif //PROJECT_1_IMAGE_PROCESSING_METHOD_HPP

@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
         }),
         Method("addred", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const int offset = Method::consumeInt(args, currentArg);
+            const int offset = Method::consumeNum<int>(args, currentArg);
             for (TgaContainer& target : targets)
             {
                 target.addRed(offset);
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
         }),
         Method("addgreen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const int offset = Method::consumeInt(args, currentArg);
+            const int offset = Method::consumeNum<int>(args, currentArg);
             for (TgaContainer& target : targets)
             {
                 target.addGreen(offset);
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
         }),
         Method("addblue", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const int offset = Method::consumeInt(args, currentArg);
+            const int offset = Method::consumeNum<int>(args, currentArg);
             for (TgaContainer& target : targets)
             {
                 target.addBlue(offset);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
         }),
         Method("scalered", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const int factor = Method::consumeInt(args, currentArg);
+            const int factor = Method::consumeNum<int>(args, currentArg);
             for (TgaContainer& target : targets)
             {
                 target.scaleRed(factor);
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
         }),
         Method("scalegreen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const int factor = Method::consumeInt(args, currentArg);
+            const int factor = Method::consumeNum<int>(args, currentArg);
             for (TgaContainer& target : targets)
             {
                 target.scaleGreen(factor);
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
         }),
         Method("scaleblue", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
-            const int factor = Method::consumeInt(args, currentArg);
+            const int factor = Method::consumeNum<int>(args, currentArg);
             for (TgaContainer& target : targets)
             {
                 target.scaleBlue(factor);

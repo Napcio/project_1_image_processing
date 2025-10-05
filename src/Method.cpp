@@ -76,11 +76,3 @@ int Method::consumeInt(const std::vector<std::string>& args, size_t& currentArg)
     currentArg++;
     return x;
 }
-
-// template<typename T>
-// T Method::consumeNum(const std::vector<std::string>& args, size_t& currentArg)
-// {
-//     static_assert(std::is_arithmetic_v<T>, "")
-//     if (currentArg >= args.size())
-//         throw InputValidationExceptions::MissingArgument();
-// }
