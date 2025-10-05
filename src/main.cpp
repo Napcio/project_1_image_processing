@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     const std::vector<Method> methods = {
         Method("test", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            const std::vector<std::vector<float>> kermit = {
+            const std::vector<std::vector<double>> kermit = {
                 {0, -1, 0},
                 {-1, 5, -1},
                 {0, -1, 0}

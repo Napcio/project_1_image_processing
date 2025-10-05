@@ -317,7 +317,7 @@ TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& 
         for (size_t col = 0; col < header_.imageWidth; col++)
         {
             size_t topBound;
-            if (int indexOfTopOfKernel = row - (kernel.size() / 2) < 0)
+            if (int indexOfTopOfKernel = static_cast<int>(row - (kernel.size() / 2)) < 0)
                 topBound = -indexOfTopOfKernel;
             else
                 topBound = 0;
@@ -327,7 +327,7 @@ TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& 
             else
                 bottomBound = kernel.size();
             size_t leftBound;
-            if (int indexOfLeftOfKernel = col - (kernel[0].size() / 2) < 0)
+            if (int indexOfLeftOfKernel = static_cast<int>(col - (kernel[0].size() / 2)) < 0)
                 leftBound = -indexOfLeftOfKernel;
             else
                 leftBound = 0;
