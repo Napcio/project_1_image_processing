@@ -7,6 +7,7 @@
 #include "TgaContainer.hpp"
 
 #include <iostream>
+#include <cmath>
 
 
 TgaContainer::TgaContainer(const std::string& filename)
@@ -94,6 +95,22 @@ TgaContainer& TgaContainer::multiply(const TgaContainer& other)
     {
         p1.multiply(p2);
     }, other);
+    return *this;
+}
+
+TgaContainer& TgaContainer::multiply(double factor)
+{
+    forEachPixel([&factor](Pixel& p)
+    {
+        p.multiply(factor);
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::blur()
+{
+    // TODO: implement
+    throw std::runtime_error("blur not implemented");
     return *this;
 }
 
@@ -269,6 +286,12 @@ TgaContainer& TgaContainer::sepia()
     return *this;
 }
 
+TgaContainer& TgaContainer::highlightEdges()
+{
+    applyKernel(laplacianEdgeDetection);
+    return *this;
+}
+
 
 TgaContainer& TgaContainer::forEachPixel(const std::function<void(Pixel&)>& func)
 {
@@ -302,13 +325,14 @@ TgaContainer& TgaContainer::forEachPixelPair(const std::function<void(Pixel&, co
 }
 
 // Kernel must have an odd size in both x and y, such that there is a center
-TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& kernel)
+TgaContainer& TgaContainer::applyKernel(const KernelVec& kernel)
 {
-    if (kernel.empty() || kernel.size() % 2 == 0 || kernel[0].size() % 2 == 0)
+    if (!isKernel(kernel))
     {
         throw std::runtime_error("Invalid kernel passed to TgaContainer::applyKernel()");
     }
-    std::pair<size_t, size_t> center = {kernel.size() / 2.0 + .5, kernel[0].size() / 2.0 + .5}; // x, y
+    std::pair<size_t, size_t> centerOffsets = {kernel.size() / 2.0, kernel[0].size() / 2.0}; // x, y
+    const TgaContainer oldData(*this);
 
     // very disgusting code ahead beware
     // For every pixel
@@ -316,23 +340,23 @@ TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& 
     {
         for (size_t col = 0; col < header_.imageWidth; col++)
         {
-            size_t topBound;
-            if (int indexOfTopOfKernel = static_cast<int>(row - (kernel.size() / 2)) < 0)
-                topBound = -indexOfTopOfKernel;
-            else
-                topBound = 0;
             size_t bottomBound;
-            if (int indexOfBottomOfKernel = row + (kernel.size() / 2) >= header_.imageHeight)
-                bottomBound = indexOfBottomOfKernel - (header_.imageHeight - 1) + 1;
+            if (int indexOfTopOfKernel = (row - (kernel.size() / 2)); indexOfTopOfKernel < 0)
+                bottomBound = -indexOfTopOfKernel;
             else
-                bottomBound = kernel.size();
+                bottomBound = 0;
+            size_t topBound;
+            if (int indexOfBottomOfKernel = row + (kernel.size() / 2); indexOfBottomOfKernel >= header_.imageHeight)
+                topBound = indexOfBottomOfKernel - (header_.imageHeight - 1) + 1;
+            else
+                topBound = kernel.size();
             size_t leftBound;
-            if (int indexOfLeftOfKernel = static_cast<int>(col - (kernel[0].size() / 2)) < 0)
+            if (int indexOfLeftOfKernel = (col - (kernel[0].size() / 2)); indexOfLeftOfKernel < 0)
                 leftBound = -indexOfLeftOfKernel;
             else
                 leftBound = 0;
             size_t rightBound;
-            if (int indexOfRightOfKernel = row + (kernel[0].size() / 2) >= header_.imageWidth)
+            if (int indexOfRightOfKernel = row + (kernel[0].size() / 2); indexOfRightOfKernel >= header_.imageWidth)
                 rightBound = indexOfRightOfKernel - (header_.imageWidth - 1) + 1;
             else
                 rightBound = kernel.size();
@@ -348,7 +372,8 @@ TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& 
                 {
                     for (size_t kernelCol = leftBound; kernelCol < rightBound; kernelCol++)
                     {
-                        const Pixel& otherPixel = imageData_[row - center.second + kernelRow][col - center.first + kernelCol];
+                        const Pixel& otherPixel = oldData.imageData_
+                        [row - centerOffsets.second + kernelRow][col - centerOffsets.first + kernelCol];
                         double n;
                         // forgive me uncle bob
                         switch (channel)
@@ -359,9 +384,13 @@ TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& 
                             case 1:
                                 n = otherPixel.green;
                                 break;
-                            case 3:
+                            case 2:
                                 n = otherPixel.blue;
                                 break;
+                            default:
+                                throw std::runtime_error("Error in applyKernel(),"
+                                    " control should never default on switch statement. Channel number is "
+                                    + std::to_string(channel));
                         }
                         sum += n * kernel[kernelRow][kernelCol];
                     }
@@ -387,6 +416,65 @@ TgaContainer& TgaContainer::save(const std::string& filename)
 
     out.close();
     return *this;
+}
+
+
+bool TgaContainer::isKernel(const KernelVec& vec)
+{
+    if (vec.empty() || vec.size() % 2 == 0 || vec[0].size() % 2 == 0)
+    {
+        return false;
+    }
+    // Ensure that all nested vectors are the same size
+    size_t numColumns = vec[0].size();
+    for (const std::vector<double>& row : vec)
+    {
+        if (row.size() != numColumns)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+KernelVec TgaContainer::createGaussianKernel(size_t xSize, size_t ySize, double standardDeviation)
+{
+    KernelVec kernel(ySize, std::vector<double>(xSize, 0));
+    if (!isKernel(kernel))
+    {
+        throw std::runtime_error("Invalid size passed to createGaussianKernel()");
+    }
+    for (size_t row = 0; row < kernel.size(); row++)
+    {
+        for (size_t col = 0; col < kernel[0].size(); row++)
+        {
+            const int x = row - (kernel.size() / 2);
+            const int y = col - (kernel[0].size() / 2);
+            const double exponentDenominator = 2 * std::pow(standardDeviation, 2);
+
+            kernel[row][col] = (1/(std::numbers::pi * exponentDenominator))
+            * -std::pow(std::numbers::e, (x*x + y*y)/exponentDenominator);
+        }
+    }
+
+    return kernel;
+}
+
+KernelVec TgaContainer::invertKernel(const KernelVec& kernel)
+{
+    if (!isKernel(kernel))
+    {
+        throw std::runtime_error("Invalid size passed to createGaussianKernel()");
+    }
+    KernelVec newKernel(kernel);
+    for (std::vector<double>& vec : newKernel)
+    {
+        for (double& val : vec)
+        {
+            val = -val;
+        }
+    }
+    return newKernel;
 }
 
 // Should only be called in the constructor, allocates imageData_

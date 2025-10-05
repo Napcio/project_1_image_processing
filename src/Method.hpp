@@ -45,7 +45,8 @@ struct Method
 
     static std::string consumeString(const std::vector<std::string>& args, size_t& currentArg);
     static int consumeInt(const std::vector<std::string>& args, size_t& currentArg);
-
+    template <class T>
+    T consumeNum(const std::vector<std::string>& args, size_t& currentArg);
 
 private:
     static void handleError(const std::string& errorMessage);

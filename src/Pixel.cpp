@@ -15,6 +15,15 @@ Pixel& Pixel::multiply(const Pixel& other)
     return *this;
 }
 
+Pixel& Pixel::multiply(double factor)
+{
+    forEachChannel([&factor](uint8_t& c)
+    {
+        c = clamp(c * factor * .5);
+    });
+    return *this;
+}
+
 Pixel& Pixel::screen(const Pixel& other)
 {
     forEachChannelPair([](uint8_t& p1, uint8_t p2)

@@ -28,6 +28,7 @@ struct TgaHeader
 #pragma pack(pop)
 
 struct Pixel;
+using KernelVec = std::vector<std::vector<double>>;
 
 // For all operations involving another TgaContainer, the invoking object is the top layer and the passed object is the
 // bottom layer
@@ -45,14 +46,16 @@ public:
 
     ~TgaContainer();
 
+    // Milestone 1
     TgaContainer& multiply(const TgaContainer& other);
+    TgaContainer& multiply(double factor);
     TgaContainer& screen(const TgaContainer& other);
     TgaContainer& subtract(const TgaContainer& other);
     TgaContainer& add(const TgaContainer& other);
     TgaContainer& overlay(const TgaContainer& other);
-
     TgaContainer& flip();
 
+    // Milestone 2
     TgaContainer& combine(const TgaContainer& green, const TgaContainer& blue);
     TgaContainer& onlyRed();
     TgaContainer& onlyGreen();
@@ -64,9 +67,13 @@ public:
     TgaContainer& scaleGreen(int x);
     TgaContainer& scaleBlue(int x);
 
+    // Extra credit
     TgaContainer& invert();
     TgaContainer& grayscale();
     TgaContainer& sepia();
+    // Uses Laplacian edge detection
+    TgaContainer& highlightEdges();
+    TgaContainer& blur();
 
 
     // Helper functions
@@ -83,9 +90,23 @@ public:
      */
     TgaContainer& forEachPixelPair(const std::function<void(Pixel&, const Pixel&)>& func, const TgaContainer& other);
 
-    TgaContainer& applyKernel(const std::vector<std::vector<double>>& kernel);
+    TgaContainer& applyKernel(const KernelVec& kernel);
+
 
     TgaContainer& save(const std::string& filename);
+
+    static bool isKernel(const KernelVec& vec);
+
+    static KernelVec createGaussianKernel(size_t xSize, size_t ySize, double standardDeviation);
+    static KernelVec invertKernel(const KernelVec& kernel);
+
+
+    // Kernels
+    inline static const KernelVec laplacianEdgeDetection = {
+        {-1, -1, -1},
+        {-1, 8, -1},
+        {-1, -1, -1}
+    };
 
 
 private:

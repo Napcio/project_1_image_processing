@@ -16,6 +16,7 @@ struct Pixel
     uint8_t red;
 
     Pixel& multiply(const Pixel& other);
+    Pixel& multiply(double factor);
     Pixel& screen(const Pixel& other);
     Pixel& subtract(const Pixel& other);
     Pixel& add(const Pixel& other);

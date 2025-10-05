@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <concepts>
 
 Method::Method(const std::string& n, const std::function<void(std::vector<TgaContainer>&, const std::vector<std::string>&, size_t&)>& o)
     : name(n), operation(o) {}
@@ -75,3 +76,11 @@ int Method::consumeInt(const std::vector<std::string>& args, size_t& currentArg)
     currentArg++;
     return x;
 }
+
+// template<typename T>
+// T Method::consumeNum(const std::vector<std::string>& args, size_t& currentArg)
+// {
+//     static_assert(std::is_arithmetic_v<T>, "")
+//     if (currentArg >= args.size())
+//         throw InputValidationExceptions::MissingArgument();
+// }
