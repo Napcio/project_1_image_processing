@@ -20,8 +20,12 @@ struct Pixel
     Pixel& subtract(const Pixel& other);
     Pixel& add(const Pixel& other);
     Pixel& overlay(const Pixel& other);
+    Pixel& invert();
+    Pixel& grayscale();
+    Pixel& sepia();
 
     // Helper functions
+    Pixel& forEachChannel(const std::function<void(uint8_t&)>& func);
     /**
      * Calls the passed function for each channel, for operations involving another const pixel
      * @param func Function that is given references to the target object's current channel to operate on and the other pixel's respective channel
@@ -37,6 +41,7 @@ struct Pixel
     static uint8_t subtractChannel(uint8_t c, uint8_t offset);
     static uint8_t addChannel(uint8_t c, uint8_t offset);
     static uint8_t overlayChannel(uint8_t c, uint8_t factor);
+    static uint8_t invertChannel(uint8_t c);
 };
 #pragma pack(pop)
 

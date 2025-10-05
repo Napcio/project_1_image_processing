@@ -242,6 +242,33 @@ TgaContainer& TgaContainer::scaleBlue(int x)
     return *this;
 }
 
+TgaContainer& TgaContainer::invert()
+{
+    forEachPixel([](Pixel& pixel)
+    {
+        pixel.invert();
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::grayscale()
+{
+    forEachPixel([](Pixel& pixel)
+    {
+        pixel.grayscale();
+    });
+    return *this;
+}
+
+TgaContainer& TgaContainer::sepia()
+{
+    forEachPixel([](Pixel& pixel)
+    {
+        pixel.sepia();
+    });
+    return *this;
+}
+
 
 TgaContainer& TgaContainer::forEachPixel(const std::function<void(Pixel&)>& func)
 {
@@ -271,6 +298,80 @@ TgaContainer& TgaContainer::forEachPixelPair(const std::function<void(Pixel&, co
             func(imageData_[row][col], other.imageData_[row][col]);
         }
     }
+    return *this;
+}
+
+// Kernel must have an odd size in both x and y, such that there is a center
+TgaContainer& TgaContainer::applyKernel(const std::vector<std::vector<double>>& kernel)
+{
+    if (kernel.empty() || kernel.size() % 2 == 0 || kernel[0].size() % 2 == 0)
+    {
+        throw std::runtime_error("Invalid kernel passed to TgaContainer::applyKernel()");
+    }
+    std::pair<size_t, size_t> center = {kernel.size() / 2.0 + .5, kernel[0].size() / 2.0 + .5}; // x, y
+
+    // very disgusting code ahead beware
+    // For every pixel
+    for (size_t row = 0; row < header_.imageHeight; row++)
+    {
+        for (size_t col = 0; col < header_.imageWidth; col++)
+        {
+            size_t topBound;
+            if (int indexOfTopOfKernel = row - (kernel.size() / 2) < 0)
+                topBound = -indexOfTopOfKernel;
+            else
+                topBound = 0;
+            size_t bottomBound;
+            if (int indexOfBottomOfKernel = row + (kernel.size() / 2) >= header_.imageHeight)
+                bottomBound = indexOfBottomOfKernel - (header_.imageHeight - 1) + 1;
+            else
+                bottomBound = kernel.size();
+            size_t leftBound;
+            if (int indexOfLeftOfKernel = col - (kernel[0].size() / 2) < 0)
+                leftBound = -indexOfLeftOfKernel;
+            else
+                leftBound = 0;
+            size_t rightBound;
+            if (int indexOfRightOfKernel = row + (kernel[0].size() / 2) >= header_.imageWidth)
+                rightBound = indexOfRightOfKernel - (header_.imageWidth - 1) + 1;
+            else
+                rightBound = kernel.size();
+
+            // i realize this is dirty code but i cant think of another way to do it without rewriting a lot of things
+            // 0 = red, 1 = green, 2 = blue
+            int channel = 0;
+            imageData_[row][col].forEachChannel([&](uint8_t& c)
+            {
+                double sum = 0;
+                // For every element in the kernel that fits on the image, given the center
+                for (size_t kernelRow = bottomBound; kernelRow < topBound; kernelRow++)
+                {
+                    for (size_t kernelCol = leftBound; kernelCol < rightBound; kernelCol++)
+                    {
+                        const Pixel& otherPixel = imageData_[row - center.second + kernelRow][col - center.first + kernelCol];
+                        double n;
+                        // forgive me uncle bob
+                        switch (channel)
+                        {
+                            case 0:
+                                n = otherPixel.red;
+                                break;
+                            case 1:
+                                n = otherPixel.green;
+                                break;
+                            case 3:
+                                n = otherPixel.blue;
+                                break;
+                        }
+                        sum += n * kernel[kernelRow][kernelCol];
+                    }
+                }
+                c = Pixel::clamp(sum);
+                channel++;
+            });
+        }
+    }
+
     return *this;
 }
 

@@ -64,6 +64,10 @@ public:
     TgaContainer& scaleGreen(int x);
     TgaContainer& scaleBlue(int x);
 
+    TgaContainer& invert();
+    TgaContainer& grayscale();
+    TgaContainer& sepia();
+
 
     // Helper functions
     /**
@@ -78,6 +82,8 @@ public:
      * @param other Another TgaContainer, who's pixels are given to the passed function as a const reference
      */
     TgaContainer& forEachPixelPair(const std::function<void(Pixel&, const Pixel&)>& func, const TgaContainer& other);
+
+    TgaContainer& applyKernel(const std::vector<std::vector<double>>& kernel);
 
     TgaContainer& save(const std::string& filename);
 

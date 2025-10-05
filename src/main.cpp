@@ -30,6 +30,18 @@ int main(int argc, char* argv[])
     }
 
     const std::vector<Method> methods = {
+        Method("test", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            const std::vector<std::vector<float>> kermit = {
+                {0, -1, 0},
+                {-1, 5, -1},
+                {0, -1, 0}
+            };
+            for (TgaContainer& target : targets)
+            {
+                target.applyKernel(kermit);
+            }
+        }),
         Method("multiply", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
             const TgaContainer other(Method::consumeInputFilename(args, currentArg));
@@ -145,6 +157,27 @@ int main(int argc, char* argv[])
             for (TgaContainer& target : targets)
             {
                 target.scaleBlue(factor);
+            }
+        }),
+        Method("invert", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            for (TgaContainer& target : targets)
+            {
+                target.invert();
+            }
+        }),
+        Method("grayscale", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            for (TgaContainer& target : targets)
+            {
+                target.grayscale();
+            }
+        }),
+        Method("sepia", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            for (TgaContainer& target : targets)
+            {
+                target.sepia();
             }
         })
     };
