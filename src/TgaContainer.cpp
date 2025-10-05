@@ -108,8 +108,8 @@ TgaContainer& TgaContainer::multiply(double factor)
 
 TgaContainer& TgaContainer::blur()
 {
-    // TODO: implement
-    throw std::runtime_error("blur not implemented");
+    const KernelVec kernel = KernelOperations::createGaussianKernel(5, 5, 2);
+    applyKernel(kernel);
     return *this;
 }
 
@@ -330,7 +330,7 @@ TgaContainer& TgaContainer::applyKernel(const KernelVec& kernel)
     {
         throw std::runtime_error("Invalid kernel passed to TgaContainer::applyKernel()");
     }
-    std::pair<size_t, size_t> centerOffsets = {kernel.size() / 2.0, kernel[0].size() / 2.0}; // x, y
+    std::pair<size_t, size_t> centerOffsets = {kernel.size() / 2, kernel[0].size() / 2}; // y, x
     const TgaContainer oldData(*this);
 
     // very disgusting code ahead beware
@@ -340,25 +340,25 @@ TgaContainer& TgaContainer::applyKernel(const KernelVec& kernel)
         for (size_t col = 0; col < header_.imageWidth; col++)
         {
             size_t bottomBound;
-            if (int indexOfTopOfKernel = (row - (kernel.size() / 2)); indexOfTopOfKernel < 0)
+            if (int indexOfTopOfKernel = (row - (centerOffsets.first)); indexOfTopOfKernel < 0)
                 bottomBound = -indexOfTopOfKernel;
             else
                 bottomBound = 0;
             size_t topBound;
-            if (int indexOfBottomOfKernel = row + (kernel.size() / 2); indexOfBottomOfKernel >= header_.imageHeight)
+            if (int indexOfBottomOfKernel = row + (centerOffsets.first); indexOfBottomOfKernel >= header_.imageHeight)
                 topBound = indexOfBottomOfKernel - (header_.imageHeight - 1) + 1;
             else
                 topBound = kernel.size();
             size_t leftBound;
-            if (int indexOfLeftOfKernel = (col - (kernel[0].size() / 2)); indexOfLeftOfKernel < 0)
+            if (int indexOfLeftOfKernel = (col - (centerOffsets.second)); indexOfLeftOfKernel < 0)
                 leftBound = -indexOfLeftOfKernel;
             else
                 leftBound = 0;
             size_t rightBound;
-            if (int indexOfRightOfKernel = row + (kernel[0].size() / 2); indexOfRightOfKernel >= header_.imageWidth)
+            if (int indexOfRightOfKernel = col + (centerOffsets.second); indexOfRightOfKernel >= header_.imageWidth)
                 rightBound = indexOfRightOfKernel - (header_.imageWidth - 1) + 1;
             else
-                rightBound = kernel.size();
+                rightBound = kernel[0].size();
 
             // i realize this is dirty code but i cant think of another way to do it without rewriting a lot of things
             // 0 = red, 1 = green, 2 = blue
@@ -372,7 +372,7 @@ TgaContainer& TgaContainer::applyKernel(const KernelVec& kernel)
                     for (size_t kernelCol = leftBound; kernelCol < rightBound; kernelCol++)
                     {
                         const Pixel& otherPixel = oldData.imageData_
-                        [row - centerOffsets.second + kernelRow][col - centerOffsets.first + kernelCol];
+                        [row - centerOffsets.first + kernelRow][col - centerOffsets.second + kernelCol];
                         double n;
                         // forgive me uncle bob
                         switch (channel)

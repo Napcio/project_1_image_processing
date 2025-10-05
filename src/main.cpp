@@ -207,10 +207,9 @@ int main(int argc, char* argv[])
         }),
         Method("blur", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            const KernelVec kernel = KernelOperations::createGaussianKernel(3, 3, 1);
             for (TgaContainer& target : targets)
             {
-                target.applyKernel(kernel);
+                target.blur();
             }
         })
     };

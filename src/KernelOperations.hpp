@@ -5,9 +5,12 @@
 #ifndef PROJECT_1_IMAGE_PROCESSING_KERNELOPERATIONS_HPP
 #define PROJECT_1_IMAGE_PROCESSING_KERNELOPERATIONS_HPP
 
+#include <functional>
 #include <vector>
 
-using KernelVec = std::vector<std::vector<double>>;
+using KernelVecValueType = double;
+using KernelVecRow = std::vector<KernelVecValueType>;
+using KernelVec = std::vector<KernelVecRow>;
 
 namespace KernelOperations
 {
@@ -15,6 +18,9 @@ namespace KernelOperations
 
     KernelVec createGaussianKernel(size_t xSize, size_t ySize, double standardDeviation);
     KernelVec invertKernel(KernelVec kernel);
+    KernelVec normalize(KernelVec kernel);
+
+    KernelVec forEachElement(KernelVec kernel, const std::function<void(KernelVecValueType&)>& func);
 }
 
 
