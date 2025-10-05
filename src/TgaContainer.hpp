@@ -2,12 +2,14 @@
 // Created by bigna on 9/21/2025.
 //
 
+#ifndef PROJECT_1_IMAGE_PROCESSING_NAPCIO_TGACONTAINER_HPP
+#define PROJECT_1_IMAGE_PROCESSING_NAPCIO_TGACONTAINER_HPP
+
 #include <cstdint>
 #include <string>
 #include <functional>
 
-#ifndef PROJECT_1_IMAGE_PROCESSING_NAPCIO_TGACONTAINER_HPP
-#define PROJECT_1_IMAGE_PROCESSING_NAPCIO_TGACONTAINER_HPP
+#include "KernelOperations.hpp"
 
 #pragma pack(push, 1)
 struct TgaHeader
@@ -28,7 +30,6 @@ struct TgaHeader
 #pragma pack(pop)
 
 struct Pixel;
-using KernelVec = std::vector<std::vector<double>>;
 
 // For all operations involving another TgaContainer, the invoking object is the top layer and the passed object is the
 // bottom layer
@@ -94,11 +95,6 @@ public:
 
 
     TgaContainer& save(const std::string& filename);
-
-    static bool isKernel(const KernelVec& vec);
-
-    static KernelVec createGaussianKernel(size_t xSize, size_t ySize, double standardDeviation);
-    static KernelVec invertKernel(const KernelVec& kernel);
 
 
     // Kernels

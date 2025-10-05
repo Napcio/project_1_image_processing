@@ -185,11 +185,11 @@ int main(int argc, char* argv[])
                 target.sepia();
             }
         }),
-        Method("sharpen", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        Method("sharpen", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
         {
             for (TgaContainer& target : targets)
             {
-                double intensity = 1;
+                const double intensity = Method::consumeNum<double>(args, currentArg);
                 /**
                  * The output of the laplacian edge detection needs to be split into 2 images, one for the positive
                  * values and one for negatives, as images are unable to store the negative values. Alternativly,
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
                 TgaContainer positiveHighlights = TgaContainer(target).highlightEdges().multiply(intensity);
 
                 TgaContainer negativeHighlights = TgaContainer(target)
-                .applyKernel(TgaContainer::invertKernel(TgaContainer::laplacianEdgeDetection))
+                .applyKernel(KernelOperations::invertKernel(TgaContainer::laplacianEdgeDetection))
                 .multiply(intensity);
 
                 target.add(positiveHighlights).subtract(negativeHighlights);
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
         }),
         Method("blur", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            const KernelVec kernel = TgaContainer::createGaussianKernel(3, 3, 1);
+            const KernelVec kernel = KernelOperations::createGaussianKernel(3, 3, 1);
             for (TgaContainer& target : targets)
             {
                 target.applyKernel(kernel);

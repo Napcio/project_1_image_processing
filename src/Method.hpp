@@ -4,6 +4,7 @@
 
 #ifndef PROJECT_1_IMAGE_PROCESSING_METHOD_HPP
 #define PROJECT_1_IMAGE_PROCESSING_METHOD_HPP
+
 #include <functional>
 #include <sstream>
 #include <string>
