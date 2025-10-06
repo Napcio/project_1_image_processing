@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++20
-SRC = src/Milestone1.cpp src/main.cpp src/TgaContainer.cpp src/Pixel.cpp src/Method.cpp
+SRC = src/Milestone1.cpp src/main.cpp src/TgaContainer.cpp src/Pixel.cpp src/Method.cpp src/KernelOperations.cpp
 OUT = project1.out
 
 .PHONY: all tasks

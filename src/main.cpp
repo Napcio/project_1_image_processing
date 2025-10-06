@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
                 target.blur();
             }
         }),
-        // TODO: Fix artifacting on the bottom & right of the mosaic as a result of poor scaling when given dimensions
+        // TODO: Fix artifacting on the top & right of the mosaic as a result of poor scaling when given dimensions
         // TODO: that dont divide evenly into the default dimensions
         Method("mosaic", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
             size_t mosaicHeight = Method::consumeNum<size_t>(args, currentArg);
 
             const size_t numImages = mosaicHeight * mosaicWidth;
-            if (numImages < targets.size())
+            if (targets.size() < numImages )
                 throw InputValidationExceptions::InsufficientInputs("mosaic");
 
             // Calculate height & width of each image
@@ -215,9 +215,9 @@ int main(int argc, char* argv[])
             mosaicImage.scale(TgaContainer::defaultHeight, TgaContainer::defaultWidth);
             size_t currentImage = 0;
 
-            for (size_t row = 0; row < TgaContainer::defaultHeight; row += imageHeight)
+            for (size_t row = 0; row + imageHeight - 1 < TgaContainer::defaultHeight; row += imageHeight)
             {
-                for (size_t col = 0; col < TgaContainer::defaultWidth; col += imageWidth)
+                for (size_t col = 0; col + imageWidth - 1 < TgaContainer::defaultWidth; col += imageWidth)
                 {
                     TgaContainer& targetImg = targets[currentImage++];
 
