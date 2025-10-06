@@ -102,7 +102,6 @@ public:
 
     TgaContainer& applyKernel(const KernelVec& kernel);
 
-
     TgaContainer& save(const std::string& filename);
 
 

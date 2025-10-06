@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
                 break;
             }
         }
-        if (!isMethodSuccessful) // If the program got here and this evaluates to true, no matching method was found
+        if (!isMethodSuccessful) // If control got here and this evaluates to true, no matching method was found
         {
             std::cout << InputValidationExceptions::ErrorMessages::INV_METHOD << std::endl;
             return -1;
