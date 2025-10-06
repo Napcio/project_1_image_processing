@@ -61,18 +61,3 @@ std::string Method::consumeString(const std::vector<std::string>& args, size_t& 
 
     return args[currentArg++];
 }
-
-int Method::consumeInt(const std::vector<std::string>& args, size_t& currentArg)
-{
-    if (currentArg >= args.size())
-        throw InputValidationExceptions::MissingArgument();
-
-    std::istringstream in(args[currentArg]);
-    int x;
-    in >> x;
-    if (in.fail() || !in.eof())
-        throw InputValidationExceptions::InvalidInteger();
-
-    currentArg++;
-    return x;
-}

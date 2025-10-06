@@ -2,6 +2,11 @@
 // Created by bigna on 9/21/2025.
 //
 
+// NOTE FOR MICHAEL: This project is not hosted on github codespaces (cause I was having some issues at the beginning)
+// you can find it at this link if you want to observe my descent into insanity:
+// https://github.com/Napcio/project_1_image_processing
+
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -32,19 +37,9 @@ int main(int argc, char* argv[])
     const std::vector<Method> methods = {
         Method("test", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
         {
-            const std::vector<std::vector<double>> kermit = {
-                {0, -1, 0},
-                {-1, 5, -1},
-                {0, -1, 0}
-            };
-            const std::vector<std::vector<double>> unchanged = {
-                {0, 0, 0},
-                {0, 1, 0},
-                {0, 0, 0}
-            };
             for (TgaContainer& target : targets)
             {
-                target.applyKernel(kermit);
+                target.scale(512, 64);
             }
         }),
         Method("multiply", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)
@@ -190,19 +185,7 @@ int main(int argc, char* argv[])
             for (TgaContainer& target : targets)
             {
                 const double intensity = Method::consumeNum<double>(args, currentArg);
-                /**
-                 * The output of the laplacian edge detection needs to be split into 2 images, one for the positive
-                 * values and one for negatives, as images are unable to store the negative values. Alternativly,
-                 * another container could be created that can hold those negative values, but that is currently
-                 * impossible because i don wanna :(
-                 */
-                TgaContainer positiveHighlights = TgaContainer(target).highlightEdges().multiply(intensity);
-
-                TgaContainer negativeHighlights = TgaContainer(target)
-                .applyKernel(KernelOperations::invertKernel(TgaContainer::laplacianEdgeDetection))
-                .multiply(intensity);
-
-                target.add(positiveHighlights).subtract(negativeHighlights);
+                target.sharpen(intensity);
             }
         }),
         Method("blur", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
@@ -211,6 +194,48 @@ int main(int argc, char* argv[])
             {
                 target.blur();
             }
+        }),
+        // TODO: Fix artifacting on the bottom & right of the mosaic as a result of poor scaling when given dimensions
+        // TODO: that dont divide evenly into the default dimensions
+        Method("mosaic", [](std::vector<TgaContainer>& targets, [[maybe_unused]] const std::vector<std::string>& args, [[maybe_unused]] size_t& currentArg)
+        {
+            // Measured in number of images
+            size_t mosaicWidth = Method::consumeNum<size_t>(args, currentArg);
+            size_t mosaicHeight = Method::consumeNum<size_t>(args, currentArg);
+
+            const size_t numImages = mosaicHeight * mosaicWidth;
+            if (numImages < targets.size())
+                throw InputValidationExceptions::InsufficientInputs("mosaic");
+
+            // Calculate height & width of each image
+            size_t imageHeight = TgaContainer::defaultHeight / mosaicHeight;
+            size_t imageWidth = TgaContainer::defaultWidth / mosaicWidth;
+
+            TgaContainer mosaicImage(targets[0]); // The contents of this image should be entirely erased
+            mosaicImage.scale(TgaContainer::defaultHeight, TgaContainer::defaultWidth);
+            size_t currentImage = 0;
+
+            for (size_t row = 0; row < TgaContainer::defaultHeight; row += imageHeight)
+            {
+                for (size_t col = 0; col < TgaContainer::defaultWidth; col += imageWidth)
+                {
+                    TgaContainer& targetImg = targets[currentImage++];
+
+                    targetImg.scale(imageHeight, imageWidth);
+                    for (size_t targetImgRow = 0; targetImgRow < targetImg.getHeight(); targetImgRow++)
+                    {
+                        for (size_t targetImgCol = 0; targetImgCol < targetImg.getWidth(); targetImgCol++)
+                        {
+                            mosaicImage.pixelAt(row + targetImgRow, col + targetImgCol) =
+                                targetImg.pixelAt(targetImgRow, targetImgCol);
+                        }
+                    }
+                }
+            }
+            // Remove every picture we just operated on except the last one
+            targets.erase(targets.begin(), targets.begin() + numImages - 1);
+            // Set the last image to the mosaic we just made
+            targets[0] = std::move(mosaicImage);
         })
     };
 

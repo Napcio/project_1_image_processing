@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+// TODO: Replace references to header_.height or header_.width to getHeight() and getWidth() respectively where possible
 
 TgaContainer::TgaContainer(const std::string& filename)
 {
@@ -88,6 +89,22 @@ TgaContainer::~TgaContainer()
     deleteImageData();
 }
 
+size_t TgaContainer::getHeight() const
+{
+    return header_.imageHeight;
+}
+
+size_t TgaContainer::getWidth() const
+{
+    return header_.imageWidth;
+}
+
+Pixel& TgaContainer::pixelAt(size_t row, size_t col)
+{
+    return imageData_[row][col];
+}
+
+
 TgaContainer& TgaContainer::multiply(const TgaContainer& other)
 {
     forEachPixelPair([](Pixel& p1, const Pixel& p2)
@@ -103,13 +120,6 @@ TgaContainer& TgaContainer::multiply(double factor)
     {
         p.multiply(factor);
     });
-    return *this;
-}
-
-TgaContainer& TgaContainer::blur()
-{
-    const KernelVec kernel = KernelOperations::createGaussianKernel(5, 5, 2);
-    applyKernel(kernel);
     return *this;
 }
 
@@ -152,11 +162,11 @@ TgaContainer& TgaContainer::overlay(const TgaContainer& other)
 TgaContainer& TgaContainer::flip()
 {
     const TgaContainer old(*this);
-    for (size_t row = 0; row < header_.imageHeight; row++)
+    for (size_t row = 0; row < getHeight(); row++)
     {
         for (size_t col = 0; col < header_.imageWidth; col++)
         {
-            imageData_[row][col] = old.imageData_[header_.imageHeight - 1 - row][header_.imageWidth - 1 - col];
+            imageData_[row][col] = old.imageData_[getHeight() - 1 - row][header_.imageWidth - 1 - col];
         }
     }
     return *this;
@@ -288,6 +298,58 @@ TgaContainer& TgaContainer::sepia()
 TgaContainer& TgaContainer::highlightEdges()
 {
     applyKernel(laplacianEdgeDetection);
+    return *this;
+}
+
+TgaContainer& TgaContainer::sharpen(double intensity)
+{
+    /**
+     * The output of the laplacian edge detection needs to be split into 2 images, one for the positive
+     * values and one for negatives, as images are unable to store the negative values. Alternativly,
+     * another container could be created that can hold those negative values, but that is currently
+     * impossible because i don wanna :(
+     */
+    TgaContainer positiveHighlights = TgaContainer(*this).highlightEdges().multiply(intensity);
+
+    TgaContainer negativeHighlights = TgaContainer(*this)
+    .applyKernel(KernelOperations::invertKernel(laplacianEdgeDetection))
+    .multiply(intensity);
+
+    add(positiveHighlights).subtract(negativeHighlights);
+    return *this;
+}
+
+TgaContainer& TgaContainer::blur()
+{
+    const KernelVec kernel = KernelOperations::createGaussianKernel(3, 3, 1);
+    applyKernel(kernel);
+    return *this;
+}
+
+TgaContainer& TgaContainer::scale(size_t newHeight, size_t newWidth)
+{
+    if (newHeight == getHeight() && newWidth == getWidth())
+        return *this;
+    // The following might be bad practice but it bothers me more to copy
+    const TgaContainer original(std::move(*this));
+
+    // Reinitialize self
+    header_ = original.header_;
+    header_.imageHeight = newHeight;
+    header_.imageWidth = newWidth;
+    allocateImageData();
+
+    for (size_t row = 0; row < header_.imageHeight; row++)
+    {
+        for (size_t col = 0; col < header_.imageWidth; col++)
+        {
+            // Picks a loose approximate scaled up index and takes the exact pixel at that index from the original
+            imageData_[row][col] = original.imageData_
+            [(row * original.header_.imageHeight) / header_.imageHeight]
+            [(col * original.header_.imageWidth) / header_.imageWidth];
+        }
+    }
+
     return *this;
 }
 
@@ -432,6 +494,8 @@ void TgaContainer::load(std::ifstream& in)
 
 void TgaContainer::deleteImageData()
 {
+    if (!imageData_)
+        return;
     for (size_t i = 0; i < header_.imageHeight; i++)
     {
         delete[] imageData_[i];

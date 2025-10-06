@@ -45,6 +45,12 @@ namespace InputValidationExceptions
         MissingArgument() : InvalidArgument("Missing argument.") {}
     };
 
+    class InsufficientInputs : public InvalidArgument
+    {
+    public:
+        explicit InsufficientInputs(const std::string& methodName) : InvalidArgument("Not enough inputs to perform " + methodName + ".") {}
+    };
+
     namespace ErrorMessages
     {
         const std::string INV_METHOD = "Invalid method name.";

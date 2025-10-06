@@ -34,7 +34,6 @@ struct Method
     static std::string consumeOutputFilename(const std::vector<std::string>& args, size_t& currentArg);
 
     static std::string consumeString(const std::vector<std::string>& args, size_t& currentArg);
-    static int consumeInt(const std::vector<std::string>& args, size_t& currentArg);
     template <class T>
     static T consumeNum(const std::vector<std::string>& args, size_t& currentArg)
     {

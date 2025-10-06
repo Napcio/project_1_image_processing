@@ -36,6 +36,9 @@ struct Pixel;
 class TgaContainer
 {
 public:
+    static constexpr size_t defaultHeight = 512;
+    static constexpr size_t defaultWidth = 512;
+
     explicit TgaContainer(const std::string& filename);
     explicit TgaContainer(std::ifstream& in);
 
@@ -46,6 +49,10 @@ public:
     TgaContainer& operator=(TgaContainer&& other) noexcept;
 
     ~TgaContainer();
+
+    [[nodiscard]] size_t getHeight() const;
+    [[nodiscard]] size_t getWidth() const;
+    Pixel& pixelAt(size_t row, size_t col);
 
     // Milestone 1
     TgaContainer& multiply(const TgaContainer& other);
@@ -74,7 +81,9 @@ public:
     TgaContainer& sepia();
     // Uses Laplacian edge detection
     TgaContainer& highlightEdges();
+    TgaContainer& sharpen(double intensity);
     TgaContainer& blur();
+    TgaContainer& scale(size_t newHeight, size_t newWidth);
 
 
     // Helper functions
