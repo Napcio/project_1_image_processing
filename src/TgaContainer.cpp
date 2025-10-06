@@ -321,7 +321,7 @@ TgaContainer& TgaContainer::sharpen(double intensity)
 
 TgaContainer& TgaContainer::blur()
 {
-    const KernelVec kernel = KernelOperations::createGaussianKernel(3, 3, 1);
+    const KernelVec kernel = KernelOperations::createGaussianKernel(5, 5, 2);
     applyKernel(kernel);
     return *this;
 }
