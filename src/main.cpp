@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
         {
             for (TgaContainer& target : targets)
             {
-                target.scale(512, 64);
+                target.scale(216, 216);
             }
         }),
         Method("multiply", [](std::vector<TgaContainer>& targets, const std::vector<std::string>& args, size_t& currentArg)

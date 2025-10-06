@@ -74,9 +74,9 @@ TgaContainer& TgaContainer::operator=(TgaContainer&& other) noexcept
     if (this == &other)
         return *this;
 
+    deleteImageData();
     header_ = other.header_;
 
-    deleteImageData();
     imageData_ = other.imageData_;
     other.imageData_ = nullptr;
 
