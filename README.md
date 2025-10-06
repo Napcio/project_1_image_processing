@@ -1,6 +1,8 @@
 # Extra Credit Documentation
 
 I did the 4 suggestions of Additional Manipulation Algorithm and the Image Mosaic.
+**NOTE**: *This project is not hosted on github codespaces (because I was having some compilation issues at the beginning) you can find it at this link if you want to observe my descent into insanity (or you just want to verify my commits):*  
+https://github.com/Napcio/project_1_image_processing
 
 ## Additional Manipulation Algorithm
 - `invert` - Inverts the color of the image.

@@ -2,10 +2,6 @@
 // Created by bigna on 9/21/2025.
 //
 
-// NOTE FOR MICHAEL: This project is not hosted on github codespaces (cause I was having some issues at the beginning)
-// you can find it at this link if you want to observe my descent into insanity:
-// https://github.com/Napcio/project_1_image_processing
-
 
 #include <filesystem>
 #include <fstream>
