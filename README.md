@@ -30,8 +30,7 @@ Laplacian Kernel:
 - `blur` - Applies a mild blur to the image
   **Algorithm**: Generate a kernel of Gaussian weights according to the formula
   (1 / (2\*pi\*s^2))  \* e^(-(x^2 + y^2) / 2\*s^2) 
-  In this implementation, the kernel set to 5x5 using a standard deviation of 2. 
-  Convolve the image with the generated kernel.
+  In this implementation, the kernel set to 5x5 using a standard deviation of 2. To avoid stark changes in brightness, normalize the kernel by summing all their values, then dividing each of them by that sum. Finally, convolve the image with the generated kernel. 
 	- x, y = distance from center pixel
 	- s = standard deviation (determines how blurry the image becomes)
 
